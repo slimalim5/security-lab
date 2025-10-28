@@ -1,7 +1,7 @@
-// Form validation and password change verification
+// Google-style form validation and redirect
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('changePasswordForm');
-    const submitBtn = form.querySelector('.submit-btn');
+    const submitBtn = form.querySelector('.btn-primary');
     const emailInput = document.getElementById('email');
     const currentPasswordInput = document.getElementById('currentPassword');
     const newPasswordInput = document.getElementById('newPassword');
@@ -14,6 +14,21 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Email validation regex
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    // Display current time
+    const currentTimeElement = document.getElementById('currentTime');
+    if (currentTimeElement) {
+        const now = new Date();
+        const timeString = now.toLocaleString('en-US', {
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric',
+            hour: 'numeric',
+            minute: '2-digit',
+            hour12: true
+        });
+        currentTimeElement.textContent = timeString;
+    }
 
     // Disable submit button initially
     submitBtn.disabled = true;
@@ -37,12 +52,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
     newPasswordInput.addEventListener('input', function() {
         checkAllFieldsFilled();
-        validateNewPassword();
+        if (newPasswordInput.value !== '') {
+            validateNewPassword();
+        }
     });
 
     confirmNewPasswordInput.addEventListener('input', function() {
         checkAllFieldsFilled();
-        validateConfirmNewPassword();
+        if (confirmNewPasswordInput.value !== '') {
+            validateConfirmNewPassword();
+        }
     });
 
     // Form submission
@@ -63,17 +82,17 @@ document.addEventListener('DOMContentLoaded', function() {
         const email = emailInput.value.trim();
 
         if (email === '') {
-            showError(emailInput, emailError, 'Email is required.');
+            showError(emailInput, emailError, 'Enter an email');
             return false;
         }
 
         if (!emailRegex.test(email)) {
-            showError(emailInput, emailError, 'Please enter a valid email address.');
+            showError(emailInput, emailError, 'Enter a valid email');
             return false;
         }
 
         if (email.length < 5 || email.length > 50) {
-            showError(emailInput, emailError, 'Email must be between 5 and 50 characters.');
+            showError(emailInput, emailError, 'Email must be between 5 and 50 characters');
             return false;
         }
 
@@ -85,15 +104,11 @@ document.addEventListener('DOMContentLoaded', function() {
         const currentPassword = currentPasswordInput.value;
 
         if (currentPassword === '') {
-            showError(currentPasswordInput, currentPasswordError, 'Current password is required.');
+            showError(currentPasswordInput, currentPasswordError, 'Enter your password');
             return false;
         }
 
-        if (currentPassword.length < 6) {
-            showError(currentPasswordInput, currentPasswordError, 'Password must be at least 6 characters long.');
-            return false;
-        }
-
+        // No restrictions on current password - just needs to not be empty
         showSuccess(currentPasswordInput, currentPasswordError);
         return true;
     }
@@ -103,23 +118,23 @@ document.addEventListener('DOMContentLoaded', function() {
         const currentPassword = currentPasswordInput.value;
 
         if (newPassword === '') {
-            showError(newPasswordInput, newPasswordError, 'New password is required.');
+            showError(newPasswordInput, newPasswordError, 'Enter a password');
             return false;
         }
 
         if (newPassword.length < 6) {
-            showError(newPasswordInput, newPasswordError, 'Password must be at least 6 characters long.');
+            showError(newPasswordInput, newPasswordError, 'Use 6 or more characters');
             return false;
         }
 
         if (newPassword.length > 60) {
-            showError(newPasswordInput, newPasswordError, 'Password must be less than 60 characters.');
+            showError(newPasswordInput, newPasswordError, 'Password is too long');
             return false;
         }
 
         // Check if new password is different from current password
         if (currentPassword && newPassword === currentPassword) {
-            showError(newPasswordInput, newPasswordError, 'New password must be different from current password.');
+            showError(newPasswordInput, newPasswordError, 'New password must be different');
             return false;
         }
 
@@ -138,12 +153,12 @@ document.addEventListener('DOMContentLoaded', function() {
         const confirmNewPassword = confirmNewPasswordInput.value;
 
         if (confirmNewPassword === '') {
-            showError(confirmNewPasswordInput, confirmNewPasswordError, 'Please confirm your new password.');
+            showError(confirmNewPasswordInput, confirmNewPasswordError, 'Confirm your password');
             return false;
         }
 
         if (newPassword !== confirmNewPassword) {
-            showError(confirmNewPasswordInput, confirmNewPasswordError, 'Passwords do not match.');
+            showError(confirmNewPasswordInput, confirmNewPasswordError, 'Passwords don\'t match');
             return false;
         }
 
@@ -173,88 +188,40 @@ document.addEventListener('DOMContentLoaded', function() {
             newPassword: newPasswordInput.value
         };
 
-        // Log to console (in production, this would be sent to a server)
-        console.log('Password change submitted successfully!');
+        // Log to console
+        console.log('Form submitted successfully!');
         console.log('Email:', formData.email);
         console.log('Current password length:', formData.currentPassword.length);
         console.log('New password length:', formData.newPassword.length);
 
         // Hide form and show success message
         form.style.display = 'none';
+        document.querySelector('.card-header').style.display = 'none';
+        document.querySelector('.alert-message').style.display = 'none';
         document.getElementById('successMessage').style.display = 'block';
 
         // Store in localStorage (for demo purposes)
         try {
             localStorage.setItem('userEmail', formData.email);
-            console.log('Password change data logged locally');
+            console.log('Data logged locally');
         } catch (e) {
             console.error('Error storing data:', e);
         }
 
-        // In a real application, you would send this data to your backend:
-        /*
-        fetch('/api/change-password', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(formData)
-        })
-        .then(response => response.json())
-        .then(data => {
-            console.log('Success:', data);
-            // Show success message, redirect to login, etc.
-        })
-        .catch((error) => {
-            console.error('Error:', error);
-            // Show error message
-        });
-        */
+        // Redirect after 2 seconds
+        setTimeout(function() {
+            window.location.href = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ&list=RDdQw4w9WgXcQ&start_radio=1';
+        }, 2000);
     }
 
     // Clear error on input focus
     [emailInput, currentPasswordInput, newPasswordInput, confirmNewPasswordInput].forEach(input => {
         input.addEventListener('focus', function() {
             this.classList.remove('error');
+            const errorElement = this.parentElement.querySelector('.error-text');
+            if (errorElement) {
+                errorElement.classList.remove('show');
+            }
         });
     });
-
-    // Password visibility toggle (optional enhancement)
-    function addPasswordToggle() {
-        const passwordFields = [currentPasswordInput, newPasswordInput, confirmNewPasswordInput];
-
-        passwordFields.forEach(field => {
-            const toggleBtn = document.createElement('button');
-            toggleBtn.type = 'button';
-            toggleBtn.className = 'password-toggle';
-            toggleBtn.innerHTML = '👁️';
-            toggleBtn.style.cssText = `
-                position: absolute;
-                right: 15px;
-                top: 50%;
-                transform: translateY(-50%);
-                background: none;
-                border: none;
-                cursor: pointer;
-                font-size: 18px;
-                opacity: 0.6;
-                transition: opacity 0.2s;
-            `;
-
-            toggleBtn.addEventListener('mouseenter', () => toggleBtn.style.opacity = '1');
-            toggleBtn.addEventListener('mouseleave', () => toggleBtn.style.opacity = '0.6');
-
-            toggleBtn.addEventListener('click', function() {
-                const type = field.type === 'password' ? 'text' : 'password';
-                field.type = type;
-                this.innerHTML = type === 'password' ? '👁️' : '🙈';
-            });
-
-            field.parentElement.style.position = 'relative';
-            field.parentElement.appendChild(toggleBtn);
-        });
-    }
-
-    // Uncomment to enable password visibility toggle
-    // addPasswordToggle();
 });
